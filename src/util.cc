@@ -44,3 +44,33 @@ mw_util::niceDelta(int seconds)
 
     return ss.str();
 }
+
+#ifdef _WIN32
+void 
+mw_util::gettimeofday(timeval* tv, LPVOID ununsed)
+{
+    if (!tv)
+    {
+        return;
+    }
+	
+    FILETIME ft;
+	unsigned __int64 tmpres = 0;
+	static int tzflag;
+
+	GetSystemTimeAsFileTime(&ft);
+
+	tmpres |= ft.dwHighDateTime;
+	tmpres <<= 32;
+	tmpres |= ft.dwLowDateTime;
+
+	// Convert file time to UNIX epoch
+	tmpres -= 116444736000000000ULL;
+	// Converting file time to microseconds
+	tmpres /= 10;
+
+	// Filling the timeval structure
+	tv->tv_sec = (long)(tmpres / 1000000UL);
+	tv->tv_usec = (long)(tmpres % 1000000UL);
+}
+#endif

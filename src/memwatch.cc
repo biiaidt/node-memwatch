@@ -16,7 +16,9 @@
 
 #include <math.h> // for pow
 #include <time.h> // for time
+#ifndef _WIN32
 #include <sys/time.h>
+#endif
 
 using namespace v8;
 using namespace node;
@@ -177,7 +179,12 @@ NAN_GC_CALLBACK(memwatch::after_gc) {
         Nan::GetHeapStatistics(&hs);
 
         timeval tv;
+
+#ifdef _WIN32
+        mw_util::gettimeofday(&tv, NULL);
+#else
         gettimeofday(&tv, NULL);
+#endif
 
         baton->gc_ts = (tv.tv_sec * 1000000) + tv.tv_usec;
 
